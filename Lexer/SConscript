@@ -1,0 +1,11 @@
+Import('env')
+
+env.Append(CPPPATH=[Dir('.').abspath])
+
+env.Append(LEXFLAGS='-d')
+
+env.Append(LIBS='fl')
+
+env.objs = env.Object(['cool.ll', 'lextest.cc', 'utilities.cc', 'stringtab.cc', 'handle_flags.cc'])
+
+env.Program('lexer', env.objs)
