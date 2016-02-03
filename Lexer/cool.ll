@@ -42,7 +42,6 @@ extern YYSTYPE cool_yylval;
 /*
  *  Add Your own definitions here
  */
-
 %}
 
 /*
@@ -50,6 +49,8 @@ extern YYSTYPE cool_yylval;
  */
 
 DARROW          =>
+
+%x COMMENTS
 
 %%
 
@@ -61,7 +62,32 @@ DARROW          =>
  /*
   *  The multiple-character operators.
   */
-{DARROW}		{ return (DARROW); }
+{DARROW}		{ 
+    return (DARROW); 
+}
+
+\n              {
+    ++curr_lineno; // increment line numbers!
+}
+
+[0-9]+          {
+    cool_yylval.symbol = inttable.add_int(atoi(yytext));
+    return INT_CONST;
+}
+
+\(\*             {
+    BEGIN(COMMENTS); // start of a comment: go to a 'COMMENTS' state.
+}
+    
+<COMMENTS>\*\)   {
+    BEGIN(INITIAL);  // end of a comment: go back to normal parsing.
+}
+    
+<COMMENTS>\n    { 
+    ++curr_lineno;  // still have to increment line numbers inside of comments!
+}
+
+<COMMENTS>.     ;   // ignore every other character while we're in this state
 
  /*
   * Keywords are case-insensitive except for the values true and false,
